@@ -20,19 +20,19 @@ For example:
 ---
 
 ## **Description**
-### **Bug Fixes**:  
+### **Bug Fixes**:
 If this PR fixes a bug, please provide:
 - A brief description of the bug.
 - The root cause of the issue.
 - How this PR resolves the issue.
 
-### **Feature Request**:  
+### **Feature Request**:
 If this PR adds a new feature, please provide:
 - A brief description of the feature.
 - The motivation for introducing it.
 - Any relevant details about implementation.
 
-### **Refactor Request**:  
+### **Refactor Request**:
 If this PR refactors code, please provide:
 - The specific area of code refactored.
 - The problem with the current implementation.
