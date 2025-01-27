@@ -35,3 +35,6 @@ repos:
         args:
           - --follow-imports=silent
           - --ignore-missing-imports
+          - --explicit-package-bases
+        additional_dependencies:
+          - types-PyYAML
