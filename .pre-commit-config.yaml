@@ -36,3 +36,11 @@ repos:
           - --follow-imports=silent
           - --ignore-missing-imports
           - --explicit-package-bases
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.0.3
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        args: ['scan', '.']
+        files: \.(jac|txt|yaml|json)$
+        exclude: "venv|__jac_gen__|.mypy_cache|.jac_mypy_cache"
