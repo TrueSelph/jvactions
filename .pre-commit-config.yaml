@@ -35,3 +35,4 @@ repos:
         args:
           - --follow-imports=silent
           - --ignore-missing-imports
+          - --explicit-package-bases
