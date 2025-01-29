@@ -1,0 +1,21 @@
+package:
+  name: jivas/handoff_action
+  author: V75 Inc.
+  architype: HandoffAction
+  version: 0.0.1
+  meta:
+    title: Handoff Action
+    description: This action is designed to seamlessly handle queries or tasks that the agent cannot resolve independently. It silently transfers unresolved queries to a human operator. Once the required information or resolution is obtained, the action updates the relevant store with the response and notifies the user.
+    group: custom
+    type: interact_action
+  config:
+    singleton: true
+    order:
+      weight: 5
+      after: persona_interact_action
+  dependencies:
+    jivas: 2.0.0
+    action:
+      jivas/persona_interact_action: ^0.0.1
+      jivas/typesense_vector_store_action: ^0.0.1
+
