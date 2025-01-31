@@ -1,0 +1,8 @@
+include:jac typesense_vector_store_action;
+include:jac add_texts;
+include:jac list_documents;
+include:jac delete_document;
+include:jac get_document;
+include:jac update_document;
+include:jac import_knodes;
+include:jac delete_collection;
