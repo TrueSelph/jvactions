@@ -1,0 +1,16 @@
+package:
+  name: jivas/policy_action
+  author: V75 Inc.
+  architype: PolicyAction
+  version: 0.0.1
+  meta:
+    title: Policy Action
+    description: Manages AI policy document serving for an Agent
+    group: core
+    type: action
+  config:
+    singleton: true
+  dependencies:
+    jivas: ^2.0.0
+
+
