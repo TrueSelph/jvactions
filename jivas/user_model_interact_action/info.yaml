@@ -1,0 +1,23 @@
+package:
+  name: jivas/user_model_interact_action
+  author: V75 Inc.
+  architype: UserModelInteractAction
+  version: 0.0.1
+  meta:
+    title: User Model Interact Action
+    description: Maintains a descript, conceptual understanding of the user by monitoring conversational exchanges; may be utilized by other actions which adapt the system to user's specific needs.
+    group: core
+    type: interact_action
+  config:
+    singleton: true
+    order:
+      weight: 0
+      before: persona_interact_action
+  dependencies:
+    jivas: ^2.0.0
+    actions:
+      jivas/intent_interact_action: ^0.0.1
+      jivas/persona_interact_action: ^0.0.1
+      jivas/langchain_model_action: ^0.0.1
+
+
