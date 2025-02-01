@@ -1,0 +1,17 @@
+package:
+  name: jivas/google_calendar_action
+  author: V75 Inc.
+  architype: GoogleCalendarAction
+  version: 0.0.1
+  meta:
+    title: Google Calendar Action
+    description: Manages events and schedules on the specified Google Calendar.
+    group: core
+    type: action
+  config:
+    singleton: true
+  dependencies:
+    jivas: 2.0.0
+    pip:
+      google-api-python-client: 2.97.0
+      google-auth: 2.32.0
