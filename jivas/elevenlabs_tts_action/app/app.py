@@ -5,11 +5,9 @@ It sets up the UI for model and voice selection and manages API key input
 and session state.
 """
 
+import streamlit as st
 from jvclient.client.lib.utils import call_action_walker_exec
 from jvclient.client.lib.widgets import app_header, app_update_action
-
-import streamlit as st
-
 from streamlit_router import StreamlitRouter
 
 

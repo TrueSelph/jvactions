@@ -3,14 +3,11 @@
 import json
 from io import BytesIO
 
+import streamlit as st
+import yaml
 from jvclient.client.lib.utils import call_action_walker_exec, call_import_agent
 from jvclient.client.lib.widgets import app_header, app_update_action
-
-import streamlit as st
-
 from streamlit_router import StreamlitRouter
-
-import yaml
 
 
 def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -> None:

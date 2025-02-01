@@ -4,6 +4,7 @@ __pycache__
 venv
 __jac_gen__/
 *.jir
+*.session
 
 # Distribution / packaging
 .Python
@@ -46,7 +47,3 @@ out.txt
 # Mypy files #
 .mypy_cache*
 .jac_mypy_cache*
-
-
-# Jaclang session files
-*.session
