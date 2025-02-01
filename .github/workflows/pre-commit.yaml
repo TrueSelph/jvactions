@@ -1,14 +1,16 @@
-name: Linting and Pre-commit checks for jaclang
+name: Linting and Pre-commit checks for jvactions repo.
 
 on:
   pull_request:
     paths:
       - "jivas/**"
+      - "trueselph/**"
   push:
     branches:
       - main
     paths:
       - "jivas/**"
+      - "trueselph/**"
 
 jobs:
   pre-commit-jaclang:
