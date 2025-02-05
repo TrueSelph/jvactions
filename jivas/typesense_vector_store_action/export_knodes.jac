@@ -1,14 +1,19 @@
+import:py logging;
+import:py traceback;
+import:py from logging { Logger }
 import:jac from agent.core.agent { Agent }
 import:jac from agent.action.action { Action }
 import:jac from agent.action.actions { Actions }
 import:jac from agent.action.interact_graph_walker { interact_graph_walker }
 
 
-walker add_texts :interact_graph_walker: {
+walker export_knodes :interact_graph_walker: {
+    has json:bool = False;
+    has embeddings:bool = False;
+    has response:str = "";
 
-    has texts:list = [];
-    has metadatas:list = [];
-    has response:list = [];
+    # set up logger
+    static has logger:Logger = logging.getLogger(__name__);
 
     can on_agent with Agent entry {
         visit [-->](`?Actions);
@@ -19,12 +24,7 @@ walker add_texts :interact_graph_walker: {
     }
 
     can on_action with Action entry {
-        
-        self.response = here.add_texts(
-            texts = self.texts,
-            metadatas = self.metadatas
-        );
-
+        self.response = here.export_knodes(self.json, self.embeddings);
     }
 
 }
