@@ -19,7 +19,7 @@ walker add_texts :interact_graph_walker: {
     }
 
     can on_action with Action entry {
-        
+
         self.response = here.add_texts(
             texts = self.texts,
             metadatas = self.metadatas

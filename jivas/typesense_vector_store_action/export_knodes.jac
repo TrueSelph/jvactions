@@ -8,7 +8,7 @@ import:jac from agent.action.interact_graph_walker { interact_graph_walker }
 
 
 walker export_knodes :interact_graph_walker: {
-    has json:bool = False;
+    has export_json:bool = False;
     has embeddings:bool = False;
     has response:str = "";
 
@@ -24,7 +24,7 @@ walker export_knodes :interact_graph_walker: {
     }
 
     can on_action with Action entry {
-        self.response = here.export_knodes(self.json, self.embeddings);
+        self.response = here.export_knodes(self.export_json, self.embeddings);
     }
 
 }

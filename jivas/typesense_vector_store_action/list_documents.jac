@@ -23,7 +23,7 @@ walker list_documents :interact_graph_walker: {
             page=self.page,
             per_page=self.per_page
         );
-        
+
     }
 
 }
