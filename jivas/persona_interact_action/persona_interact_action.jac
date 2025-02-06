@@ -27,6 +27,10 @@ node PersonaInteractAction :InteractAction: {
     has model_max_tokens:int = 2048;
     has prompt:str = "Your name is Agent. Refer to the user as '{user}', if not None. Keep in mind '{date}' and '{time}' to be aware of the current date and time.  {directives}";
     has user_model_directive:str = "Employ the user information below as is relevant to inform your final response: \n\n{{user_model}}";
+    has channel_format_directive:dict = {
+        "whatsapp": "Please format your message using the following WhatsApp formats:\n- Italic: text\n- Bold: text\n- Strikethrough: text\n- Monospace: text\n- Bulleted list: * text or - text\n- Numbered list: 1. text\n- Quote: > text\n- Inline code: text\n- provide links as plain text (no clickable links)",
+        "facebook": "Please format your message using the following Facebook formats:\n- Italic: _Text_\n- Bold: *Text*\n- Strikethrough: ~Text~\n- Monospace: `Text`\n- Codeblock: ```Text```"
+    };
 
     can post_register() {
         # to ensure compatibility, this action is added to the exception list in intent_classifier
@@ -50,6 +54,9 @@ node PersonaInteractAction :InteractAction: {
     }
 
     can execute(visitor: interact_graph_walker) -> dict {
+
+        # format response by channel
+        self.handle_channel_format(visitor=visitor);
 
         # grab user's name, if set
         user = visitor.frame_node.get_user_name();
@@ -138,5 +145,13 @@ node PersonaInteractAction :InteractAction: {
         }
 
         return directives_str;
+    }
+
+    can handle_channel_format(visitor: interact_graph_walker) -> dict {
+        channel = visitor.interaction_node.channel;
+
+        if(channel in self.channel_format_directive) {
+            visitor.interaction_node.add_directive(directive=self.channel_format_directive[channel]);
+        }
     }
 }
