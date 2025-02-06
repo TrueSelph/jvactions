@@ -24,12 +24,30 @@ def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -
     (model_key, module_root) = app_header(agent_id, action_id, info)
 
     with st.expander("Import Knodes", False):
-        knode_data = st.text_area(
-            "Agent Knodes in YAML or JSON",
-            value="",
-            height=170,
-            key=f"{model_key}_knode_data",
+        # User chooses between inputting YAML/JSON text or uploading a file
+        knode_source = st.radio(
+            "Choose data source:",
+            ("Text input", "Upload file"),
+            key=f"{model_key}_knode_source",
         )
+
+        data_to_import = ""
+        if knode_source == "Text input":
+            data_to_import = st.text_area(
+                "Agent Knodes in YAML or JSON",
+                value="",
+                height=170,
+                key=f"{model_key}_knode_data",
+            )
+
+        uploaded_file = None
+        if knode_source == "Upload file":
+            uploaded_file = st.file_uploader(
+                "Upload file (YAML or JSON)",
+                type=["yaml", "json"],
+                key=f"{model_key}_agent_knode_upload",
+            )
+
         embeddings = st.toggle(
             "Import with Embeddings",
             value=True,
@@ -37,41 +55,42 @@ def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -
         )
 
         if st.button("Import", key=f"{model_key}_btn_import_knodes"):
-            # Call the function to import
-            if result := call_action_walker_exec(
-                agent_id,
-                module_root,
-                "import_knodes",
-                {"data": knode_data, "embeddings": embeddings},
-            ):
-                st.success("Agent knode imported successfully")
+            if uploaded_file:
+                # Read the contents of the uploaded file
+                file_content = uploaded_file.read().decode("utf-8")
+
+                # Determine if it's YAML or JSON and parse accordingly
+                try:
+                    if uploaded_file.type == "application/json":
+                        data_to_import = json.loads(file_content)  # parsed JSON object
+                    else:
+                        data_to_import = yaml.safe_load(
+                            file_content
+                        )  # parsed YAML object
+
+                    if data_to_import is None:
+                        st.error("File is empty or invalid.")
+
+                except Exception as e:
+                    st.error(f"Error loading file: {e}")
+
+            if data_to_import:
+                # Call the function to import with parsed data (either JSON or YAML object)
+                if result := call_action_walker_exec(
+                    agent_id,
+                    module_root,
+                    "import_knodes",
+                    {"data": data_to_import, "embeddings": embeddings},
+                ):
+                    st.success("Agent knode imported successfully")
+                else:
+                    st.error(
+                        "Failed to import knodes. Ensure that the descriptor is in valid YAML or JSON format."
+                    )
             else:
                 st.error(
-                    "Failed to import knodes. Ensure that the descriptor is in valid YAML or JSON format."
+                    "No data to import. Please provide valid text or upload a valid file."
                 )
-
-            uploaded_file = st.file_uploader(
-                "Upload file", key=f"{model_key}_agent_knode_upload"
-            )
-
-            if uploaded_file is not None:
-                loaded_config = yaml.safe_load(uploaded_file)
-                if loaded_config:
-                    st.write(loaded_config)
-                    if call_action_walker_exec(
-                        agent_id,
-                        module_root,
-                        "import_knodes",
-                        {"data": knode_data, "embeddings": embeddings},
-                    ):
-                        st.success("Agent knodes imported successfully")
-                    else:
-                        st.error(
-                            "Failed to import agent knode. Ensure that you are uploading a valid YAML file"
-                        )
-
-                else:
-                    st.error("File is invalid. Please upload a valid YAML or JSON file")
 
     with st.expander("Export Knodes", False):
         export_json = st.toggle(
