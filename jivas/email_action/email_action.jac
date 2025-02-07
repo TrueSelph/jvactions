@@ -14,7 +14,7 @@ import:jac from agent.action.model_action { ModelAction, ModelActionResult }
 node EmailAction :Action: {
     has accounts:list = [];
     has mark_as_read:bool = True;
-    has actions:list = ['delete','draft','send','reply','move','forward'];
+    has email_actions:list = ['delete','draft','send','reply','move','forward'];
     has channel:str = "email";
     has functions:list = [
         {
@@ -28,17 +28,17 @@ node EmailAction :Action: {
                     "actions": {
                         "type": "array",
                         "items": {
-                        "type": "string",
-                        "enum": [
-                            "delete",
-                            "draft",
-                            "send",
-                            "reply",
-                            "move",
-                            "forward"
-                        ]
+                            "type": "string",
+                            "enum": [
+                                "delete",
+                                "draft",
+                                "send",
+                                "reply",
+                                "move",
+                                "forward"
+                            ]
                         },
-                        "description": "List of actions to be performed on the email. leave blank if there is no action."
+                        "description": "List of actions to be performed on the email based on the items. leave blank if there is no action."
                     },
                     "directives": {
                         "type": "array",
@@ -93,7 +93,7 @@ node EmailAction :Action: {
                         prompt_messages = [{"human": "Email:\n{email}\n\nDirectives:\n{directives}"}];
                         prompt_variables = {
                             "directives": str(account['directives']),
-                            "actions": self.actions,
+                            "actions": self.email_actions,
                             "email": {
                                 'from': new_email['from'],
                                 'subject': new_email['subject'],
@@ -137,7 +137,7 @@ node EmailAction :Action: {
 
                                     interact_data = self.convert_to_email_data(message=message);
 
-                                    prompt_messages = [{"system": "Using the provided information, create a JSON object representing an email. The JSON object must include the following fields: 'cc', 'body', 'subject', 'to', and 'attachments'. Leave fields blank if not applicable. Format the email body using HTML and append all attachments to the email. Information to use: Objective: {directive}, Sender Email: {email}, Additional Information: {interact_data}."}];
+                                    prompt_messages = [{"system": "Using the provided information, create a JSON object representing an email. The JSON object must include the following fields: 'cc', 'body', 'subject', 'to', and 'attachments'. Leave fields blank if not applicable. Format the email body using HTML and append all attachments to the email.\nInformation to use:\n\nObjective:\n{directive}\n\nSender Email:\n{email}\n\nAdditional Information:\n{interact_data}\n\nDo not leave any placeholders in the email."}];
                                     edit_new_email = copy.deepcopy(new_email);
                                     if 'attachments' in edit_new_email{
                                         edit_new_email['attachments']= [];
@@ -173,8 +173,16 @@ node EmailAction :Action: {
                             }
 
                             if('draft' in action_list) {
-                                prompt_messages = [{"system": "Your goal is to create an email using the directive below.\ndirective:{directive}\nReturn a json object containing 'to:string, cc:list, subject:string, body:string'. leave it blank if not applicable. make sure you return a valid json object."}];
-                                prompt_variables = {"directive": str(result_actions['directives'])};
+                                prompt_messages = [{"system": "Your goal is to create an email using the directive below.\ndirective:{directive}\nEmail:\n{email}\nReturn a json object containing 'to:string, cc:list, subject:string, body:string'. leave it blank if not applicable. make sure you return a valid json object."}];
+
+                                edit_new_email = copy.deepcopy(new_email);
+                                if 'attachments' in edit_new_email{
+                                    edit_new_email['attachments']= [];
+                                }
+                                prompt_variables = {
+                                    "email": str(edit_new_email),
+                                    "directive": str(result_actions['directives'])
+                                };
 
                                 result = self.call_llm(prompt_messages=prompt_messages, prompt_variables=prompt_variables, functions=[], is_json=True);
 
@@ -228,14 +236,14 @@ node EmailAction :Action: {
 
 
                             if('move' in action_list) {
-                                message = (root spawn interact(
-                                    utterance = "[hello]",
-                                    agent_id = agent_node.id,
-                                    session_id = sender_session_id,
-                                    verbose = False,
-                                    reporting = False,
-                                    channel = self.channel
-                                )).message;
+                                prompt_messages = [{"system": "Extract the folder to move the email.\ndirective:{directive}\nReturn a json object containing 'folder'. "}];
+                                prompt_variables = {
+                                    "directive": str(result_actions['directives'])
+                                };
+
+
+                                result = self.call_llm(prompt_messages=prompt_messages, prompt_variables=prompt_variables, functions=[], is_json=True);
+                                self.move_email(sender_email=sender_email, sender_password=sender_password, mailbox='inbox', email_id=new_email['id'], destination_folder=result['folder']);
                             }
 
                             if('delete' in action_list) {
@@ -352,12 +360,11 @@ node EmailAction :Action: {
 
         if(model_action := agent_node.get_actions().get(action_label=self.model_action)) {
 
-            prompt_messages  = (visitor.frame_node.get_transcript_statements(interactions=self.history_size, max_statement_length=self.max_statement_length));
-
             if (model_action_result := model_action.call_model(
                 prompt_messages = prompt_messages,
                 prompt_variables = prompt_variables,
-                kwargs = kwargs
+                kwargs = kwargs,
+                logging = True
             )) {
                 result = model_action_result.get_result();
 
@@ -377,7 +384,7 @@ node EmailAction :Action: {
                     return extracted_info;
                 }else{
                     if is_json {
-                        return model_action_result.get_result();
+                        return model_action_result.get_json_result();
                     }
                     return result;
                 }

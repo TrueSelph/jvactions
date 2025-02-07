@@ -1,0 +1,11 @@
+package:
+  name: jivas/email
+  author: V75 Inc.
+  version: 0.2.0
+  meta:
+    title: Eldon Marks AI
+    description: |-
+      This is the AI version of Eldon Marks.
+    type: daf
+  dependencies:
+    jivas: ^2.0.0
