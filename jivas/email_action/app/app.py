@@ -1,7 +1,6 @@
 """Provide the main application logic for the email action interface."""
 
 from jvclient.client.lib.widgets import app_controls, app_header, app_update_action
-
 from streamlit_router import StreamlitRouter
 
 
