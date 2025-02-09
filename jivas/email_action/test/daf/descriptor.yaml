@@ -1,0 +1,36 @@
+published: true
+name: Email AI
+description: An AI representation of Eldon Marks.
+actions:
+- action: jivas/agent_utils_action
+  context:
+    version: 0.0.1
+    enabled: true
+- action: jivas/persona_interact_action
+  context:
+    version: 0.0.1
+    enabled: true
+- action: jivas/pulse_action
+  context:
+    version: 0.0.1
+    enabled: true
+    config:
+      EmailAction: every(1).minutes
+- action: jivas/langchain_model_action
+  context:
+    version: 0.0.1
+    enabled: true
+    model_name: gpt-4o
+    api_key: ""
+- action: jivas/email_action
+  context:
+    version: 0.0.1
+    enabled: true
+    mark_as_read: true
+    accounts:
+      - sender_session_id: '592'
+        sender_email: ""
+        sender_password: ""
+        directives:
+          - create a summary of the AlphaSignal email and send it to rickdeghost25@gmail.com.
+          - copy emails about payments or bank to bank_emails

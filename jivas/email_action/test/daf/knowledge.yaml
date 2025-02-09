@@ -1,0 +1,72 @@
+
+- metadata:
+    anchors:
+      - what's your number?
+      - how can I contact you by phone?
+      - can I get your phone number?
+    knode_index: phone number
+  text: My number is 5026345302. Please reach out during business hours.
+
+- metadata:
+    anchors:
+      - what's your email?
+      - how can I contact you by email?
+      - can I get your email address?
+    knode_index: email address
+  text: My email is admin@example.com. Feel free to reach out for inquiries.
+
+- metadata:
+    anchors:
+      - what's your office address?
+      - where are you located?
+      - what's your location?
+    knode_index: office address
+  text: Our office is located at 1234 Elm Street, Springfield.
+
+- metadata:
+    anchors:
+      - what are your working hours?
+      - when are you available?
+      - what time do you operate?
+    knode_index: working hours
+  text: Our working hours are from 9 AM to 5 PM, Monday through Friday.
+
+- metadata:
+    anchors:
+      - what services do you provide?
+      - what solutions do you offer?
+      - what can you help with?
+    knode_index: services
+  text: We provide AI solutions, cybersecurity services, and software development.
+
+- metadata:
+    anchors:
+      - how do I reset my password?
+      - can you help me with password recovery?
+      - I forgot my password, what should I do?
+    knode_index: password reset
+  text: To reset your password, click the "Forgot Password?" link on the login page and follow the instructions.
+
+- metadata:
+    anchors:
+      - what payment methods do you accept?
+      - how can I pay?
+      - which payment options are available?
+    knode_index: payment methods
+  text: We accept credit cards, PayPal, and bank transfers.
+
+- metadata:
+    anchors:
+      - do you offer customer support?
+      - how can I get help?
+      - is there a support team?
+    knode_index: customer support
+  text: Yes, we have a dedicated customer support team available 24/7. You can contact us through chat, email, or phone.
+
+- metadata:
+    anchors:
+      - how do I track my order?
+      - where's my order?
+      - can I get order updates?
+    knode_index: order tracking
+  text: You can track your order through the tracking link provided in your confirmation email.

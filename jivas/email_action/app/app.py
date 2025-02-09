@@ -1,9 +1,4 @@
-"""
-This module provides the main application logic for rendering Deepgram STT actions.
-
-It utilizes Streamlit to render the UI and interacts with specific widgets for
-header controls, main controls, and update actions.
-"""
+"""Provide the main application logic for the email action interface."""
 
 from jvclient.client.lib.widgets import app_controls, app_header, app_update_action
 from streamlit_router import StreamlitRouter
@@ -11,7 +6,7 @@ from streamlit_router import StreamlitRouter
 
 def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -> None:
     """
-    Render the application UI components.
+    Render the application UI.
 
     Args:
         router (StreamlitRouter): The Streamlit router instance.
@@ -21,9 +16,7 @@ def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -
     """
     # Add app header controls
     model_key, module_root = app_header(agent_id, action_id, info)
-
     # Add app main controls
     app_controls(agent_id, action_id)
-
     # Add update button to apply changes
     app_update_action(agent_id, action_id)
