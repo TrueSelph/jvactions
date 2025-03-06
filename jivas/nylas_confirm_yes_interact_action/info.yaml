@@ -1,0 +1,19 @@
+package:
+  name: jivas/nylas_confirm_yes_interact_action
+  author: V75 Inc.
+  architype: ConfirmBookingAction
+  version: 0.0.1
+  meta:
+    title: Nylas Confirm Booking Action
+    description: Creates an event on the calendar using nylas
+    group: core
+    type: interact_action
+  config:
+    singleton: true
+    order: 
+      weight: 0
+      before: persona_interact_action
+  dependencies:
+    jivas: ^2.0.0
+    actions:
+      jivas/langchain_model_action: ^0.0.1

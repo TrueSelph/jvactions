@@ -1,0 +1,15 @@
+package:
+  name: jivas/wppconnect_action
+  author: V75 Inc.
+  architype: WppconnectAction
+  version: 0.0.1
+  meta:
+    title: WPPConnect Action
+    description: Houses configurations per agent for whatsapp api communications provided by wppconnect API.
+    group: core
+    type: action
+  config:
+    singleton: true
+  dependencies:
+    jivas: ^2.0.0
+

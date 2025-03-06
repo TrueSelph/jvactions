@@ -1,0 +1,18 @@
+package:
+  name: jivas/typesense_vector_store_action
+  author: V75 Inc.
+  architype: TypesenseVectorStoreAction
+  version: 0.0.1
+  meta:
+    title: Typesense Vector Store Action
+    description: Integrates with typesense vector database for retrieval augmented generation tasks
+    group: core
+    type: vector_store_action
+  config:
+    singleton: true
+  dependencies:
+    jivas: ^2.0.0
+    pip:
+      typesense: 0.21.0
+
+

@@ -2,10 +2,10 @@ import:py logging;
 import:py traceback;
 import:py from logging { Logger }
 import:py base64;
-import:jac from agent.core.agent { Agent }
-import:jac from agent.action.action { Action }
-import:jac from agent.action.actions { Actions }
-import:jac from agent.action.interact_graph_walker { interact_graph_walker }
+import:jac from jivas.agent.core.agent { Agent }
+import:jac from jivas.agent.action.action { Action }
+import:jac from jivas.agent.action.actions { Actions }
+import:jac from jivas.agent.action.interact_graph_walker { interact_graph_walker }
 
 
 walker export_memory :interact_graph_walker: {
@@ -34,10 +34,10 @@ walker export_memory :interact_graph_walker: {
     can on_action with Action entry {
         # retrieve memory
         self.frame_data = here.export_memory(agent_id=self.agent_id, session_id=self.session_id, json=self.json, save_to_file=self.save_to_file);
-
+        
         # update response
         self.response = self.frame_data;
-
+        
     }
 
 }

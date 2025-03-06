@@ -1,0 +1,136 @@
+import json
+from jaseci.jsorc.live_actions import jaseci_action
+from datetime import datetime, timedelta
+import requests
+import json
+import http.client
+
+conn = http.client.HTTPSConnection("localhost")
+
+NAME = 'calendar'
+VERSION = 'v3'
+
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def create_event(url, bearer_token, event_info):
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": bearer_token
+    }
+    # Convert payload to JSON string
+    payload_json = json.dumps(event_info)
+
+    # Send POST request
+    response = requests.request("POST", url, headers=headers, data=payload_json)
+
+    # Return the response object if further processing is needed
+    return response.json()
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def get_calendars(url, bearer_token):
+    payload = {}
+    headers = {
+        "Accept": "application/json",
+        "Authorization": bearer_token
+    }
+    # Send GET request
+    calendars = requests.request("GET", url, headers=headers, data=payload)
+
+    # Return the response object if further processing is needed
+    return calendars.json()
+
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def get_availability(url, bearer_token, payload,):
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': bearer_token
+    }
+    payload = json.dumps(payload)
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    return response.json()
+
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def get_event(url, bearer_token):
+
+    payload = {}
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': bearer_token
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    return response.json()
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def delete_event(url, bearer_token):
+    payload = {}
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': bearer_token
+    }
+    response = requests.request("DELETE", url, headers=headers, data=payload)
+
+    return response.text
+
+@jaseci_action(act_group=["calendar"], allow_remote=False)
+def update_event(url, bearer_token, payload):
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': bearer_token
+    }
+    response = requests.request("PUT", url, headers=headers, data=payload)
+
+    print(response.text)
+    return response.json()
+
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def get_all_events(url, bearer_token):
+
+    payload = {}
+    headers = {
+    'Accept': 'application/json',
+    'Authorization': bearer_token
+    }
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    return response.json()
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def free_busy(url, bearer_token, payload):
+    url = url + "/calendars/free-busy"
+
+    payload = json.dumps(
+    # {
+    # "start_time": "<integer>",
+    # "end_time": "<integer>",
+    # "emails": [
+    #     "<string>",
+    # ]
+    # }
+    payload)
+    headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': bearer_token
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
+
+@jaseci_action(act_group=["nylas"], allow_remote=False)
+def round_up_time(time, date_format="%Y-%m-%d %H:%M:%S"):
+    time = datetime.strptime(time, date_format)
+    # Rounds up to next half hour by adding 30 minutes to current hour
+    new_time = time.replace(second=0, minute=0, hour=time.hour) + timedelta(minutes=((time.minute//30)+1)*30)
+    formatted_new_time = new_time.strftime(date_format)
+    return formatted_new_time

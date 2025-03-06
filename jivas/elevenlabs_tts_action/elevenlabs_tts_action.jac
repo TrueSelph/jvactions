@@ -8,7 +8,7 @@ import:py from typing { Iterator }
 import:py from logging { Logger }
 import:py from elevenlabs { Voice, VoiceSettings, stream, play }
 import:py from elevenlabs.client { ElevenLabs }
-import:jac from agent.action.tts_action { TTSAction }
+import:jac from jivas.agent.action.tts_action { TTSAction }
 
 
 node ElevenlabsTTSAction :TTSAction: {
@@ -31,7 +31,7 @@ node ElevenlabsTTSAction :TTSAction: {
         audio = None;
         # overridden with specifics of TTS model
         try {
-
+            
             client = ElevenLabs(api_key=self.api_key); # Defaults to ELEVEN_API_KEY
             if( response := client.generate(
                 text = text,
@@ -46,7 +46,7 @@ node ElevenlabsTTSAction :TTSAction: {
             self.logger.error(f"an exception occurred, {traceback.format_exc()}");
         }
 
-        return self.get_audio_as(audio, as_base64, as_url);
+        return self.get_audio_as(audio, as_base64, as_url); 
     }
 
     can get_voices() {

@@ -1,0 +1,21 @@
+package:
+  name: jivas/function_interact_action
+  author: V75 Inc.
+  architype: FunctionInteractAction
+  version: 0.0.1
+  meta:
+    title: Function Interact Action
+    description: Chooses the best action(s) (intents) and extracts any related params.
+    group: core
+    type: interact_action
+  config:
+    singleton: true
+    order: 
+      weight: 0
+      before: all
+  dependencies:
+    jivas: ^2.0.0
+    actions:
+      jivas/langchain_model_action: ^0.0.1
+
+

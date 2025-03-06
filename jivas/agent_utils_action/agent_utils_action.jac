@@ -4,14 +4,14 @@ import:py schedule;
 import:py logging;
 import:py traceback;
 import:py from logging { Logger }
-import:jac from agent.action.action { Action }
+import:jac from jivas.agent.action.action { Action }
 
 node AgentUtilsAction :Action: {
     # Provides controls to provide power user controls for the management of agents.
 
     # set up logger
     static has logger:Logger = logging.getLogger(__name__);
-
+    
     can purge_memory(session_id:str) {
         if(result := self.get_agent().get_memory().purge(session_id)) {
             return True;
@@ -25,7 +25,7 @@ node AgentUtilsAction :Action: {
     }
 
     can import_memory(data:str, overwrite:bool) {
-        # accepts a string-based representation
+        # accepts a string-based representation 
         memory_data = {};
 
         # Try to parse the content as JSON

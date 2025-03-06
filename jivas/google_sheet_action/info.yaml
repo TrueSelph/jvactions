@@ -1,0 +1,16 @@
+package:
+  name: jivas/google_sheet_action
+  author: V75 Inc.
+  architype: GoogleSheetAction
+  version: 0.0.1
+  meta:
+    title: Google Sheet Action
+    description: Handles Google Sheet API tasks and automation
+    group: core
+    type: action
+  config:
+    singleton: true
+  dependencies:
+    jivas: 2.0.0
+    pip:
+      gspread: 6.1.3

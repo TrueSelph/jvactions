@@ -1,0 +1,23 @@
+package:
+  name: jivas/interview_interact_action
+  author: V75 Inc.
+  architype: InterviewInteractAction
+  version: 0.0.1
+  meta:
+    title: Interview Interact Action
+    description: Accepts a collection of questions and orchestrates a conversation to gatther responses from the user.
+    group: core
+    type: interact_action
+  config:
+    singleton: true
+    order: 
+      weight: 0
+      after: function_interact_action
+      before: persona_interact_action
+  dependencies:
+    jivas: ^2.0.0
+    actions:
+      jivas/function_interact_action: ^0.0.1
+      jivas/persona_interact_action: ^0.0.1
+
+

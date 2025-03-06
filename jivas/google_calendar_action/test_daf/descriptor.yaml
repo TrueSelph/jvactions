@@ -1,0 +1,31 @@
+published: true
+name: DHB AI
+tts_action: DeepgramTTSAction
+description: |-
+  Provides DHB commuters with information on bus schedules, routes, and fares. It also offers general information on the DHB and its services. Allows  DHB staff to communicate updates.
+
+actions:    
+- action: jivas/google_calendar_action
+  context:
+    version: 0.0.1
+    label: GoogleCalendarAction
+    description: Manages events and schedules on the specified Google Calendar.
+    enabled: true
+    channel_id: "dhb_ai"
+    base_url: "https://ec3b-190-93-39-3.ngrok-free.app"
+    scopes:
+    - https://www.googleapis.com/auth/calendar
+    calendar_id: jtharick@gmail.com
+    base_url: https://ec3b-190-93-39-3.ngrok-free.app
+    info_type: service_account
+    project_id: jivas-422314
+    private_key_id: b13bb9fbaf33c9f2e4581a821d34ca1bbe
+    private_key: "-----BEGIN PRIVATE KEY-----\n-----END PRIVATE KEY-----\n"
+    client_email: trueselph@jivas-422314.iam.gserviceaccount.com
+    client_id: '1077831935018326501'
+    auth_uri: https://accounts.google.com/o/oauth2/auth
+    token_uri: https://oauth2.googleapis.com/token
+    auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+    client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/trueselph%40jivas-422314.iam.gserviceaccount.com
+    universe_domain: googleapis.com
+

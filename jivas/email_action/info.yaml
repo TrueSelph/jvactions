@@ -1,0 +1,16 @@
+package:
+  name: jivas/email_action
+  author: V75 Inc.
+  architype: EmailAction
+  version: 0.0.1
+  meta:
+    title: Email Action
+    description: handle email automation
+    group: core
+    type: action
+  config:
+    singleton: true
+  dependencies:
+    jivas: ^2.0.0
+
+

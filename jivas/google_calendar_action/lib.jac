@@ -1,0 +1,3 @@
+include:jac google_calendar_action;
+include:jac google_calendar_interact;
+include:jac register_google_calendar_webhook;

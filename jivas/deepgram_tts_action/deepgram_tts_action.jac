@@ -2,7 +2,7 @@ import:py logging;
 import:py traceback;
 import:py requests;
 import:py from logging { Logger }
-import:jac from agent.action.tts_action { TTSAction }
+import:jac from jivas.agent.action.tts_action { TTSAction }
 
 node DeepgramTTSAction :TTSAction: {
     # A speech action which integrates with the Deepgram speech to text and text to speech API.
@@ -10,9 +10,9 @@ node DeepgramTTSAction :TTSAction: {
     # set up logger
     static has logger:Logger = logging.getLogger(__name__);
 
-    has model:str = "aura-asteria-en";
-    has api_key:str = ""; # pragma: allowlist secret
-
+    has model:str = "aura-asteria-en"; 
+    has api_key:str = "";
+    
     can invoke(text:str, as_base64:bool=False, as_url:bool=False) {
         # """
         # Convert text to speech and save the audio file.
@@ -38,15 +38,14 @@ node DeepgramTTSAction :TTSAction: {
         try {
             response = requests.post(
                 "https://api.deepgram.com/v1/speak",
-                headers=headers,
-                json=data,
+                headers=headers, 
+                json=data, 
                 params= {
                     'model':self.model
                 }
             );
             response.raise_for_status();  # Raise an error for bad responses
-
-            audio = response.content();
+            audio = response.content;
 
         } except Exception as e {
             self.logger.error(f"an exception occurred, {traceback.format_exc()}");

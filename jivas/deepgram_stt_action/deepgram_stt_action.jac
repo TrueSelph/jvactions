@@ -3,7 +3,7 @@ import:py logging;
 import:py traceback;
 import:py requests;
 import:py from logging { Logger }
-import:jac from agent.action.stt_action { STTAction }
+import:jac from jivas.agent.action.stt_action { STTAction }
 
 node DeepgramSTTAction :STTAction: {
     # A speech action which integrates with the Deepgram speech to text and text to speech API.

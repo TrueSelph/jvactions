@@ -1,8 +1,8 @@
 import:py logging;
 import:py traceback;
 import:py from logging { Logger }
-import:jac from agent.core.agents { Agents }
-import:jac from agent.action.interact_graph_walker { interact_graph_walker }
+import:jac from jivas.agent.core.agents { Agents }
+import:jac from jivas.agent.action.interact_graph_walker { interact_graph_walker }
 
 
 walker delete_agent :interact_graph_walker: {
