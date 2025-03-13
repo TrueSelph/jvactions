@@ -1,6 +1,7 @@
 import:py random;
 import:py uuid;
 import:py logging;
+import:py traceback;
 import:py from logging { Logger }
 import:py from jivas.agent.modules.agentlib.utils { Utils }
 import:jac from jivas.agent.memory.interaction_response { TextInteractionMessage, MediaInteractionMessage, MultiInteractionMessage }
@@ -632,6 +633,37 @@ Query: {query}
                 ultramsg_action_node.send_message(session_id=session_id, message=TextInteractionMessage(content=extracted_info.get("query_summary")));
                 frame_node.add_unprompted_interaction(channel = "whatsapp", message = extracted_info.get("query_summary"));
             }
+        }
+    }
+
+    
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.directive and
+                self.select_handoff_prompt and
+                self.ask_confirmation_prompt and
+                self.request_correct_info_directive and
+                self.query_reply_prompt and
+                self.extract_answer_prompt and
+                self.model_op and 
+                self.model_name and 
+                self.model_action and 
+                self.model_temperature and 
+                self.model_max_tokens and 
+                self.experts_numbers and
+                self.worksheet_title and
+                self.vector_store_action and
+                self.confirm_function and
+                self.handoff_functions and 
+                self.max_statement_length > 0
+            ) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
         }
     }
 

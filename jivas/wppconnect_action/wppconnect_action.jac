@@ -1,4 +1,5 @@
 import:py logging;
+import:py traceback;
 import:py os;
 import:py from logging { Logger }
 import:py from jvserve.lib.agent_interface { AgentInterface }
@@ -152,6 +153,26 @@ node WppconnectAction :Action: {
                     }
                 }
             }
+        }
+    }
+
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.base_url and 
+                self.api_key and 
+                self.api_url and
+                self.instance_id and
+                self.webhook_url and 
+                self.chunk_length > 1000
+            ){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
         }
     }
 

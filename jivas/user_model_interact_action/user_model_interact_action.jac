@@ -84,4 +84,25 @@ node UserModelInteractAction :InteractAction: {
 
         return visitor.export();
     }
+
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.prompt and
+                self.user_model_template and
+                self.history_size > 0 and
+                self.max_statement_length > 0 and
+                self.model_action and
+                self.model_name and
+                self.model_max_tokens > 0
+            ){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
 }

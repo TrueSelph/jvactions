@@ -1,14 +1,7 @@
 import:py logging;
-import:py re;
 import:py from logging { Logger }
-import:py from jivas.agent.modules.agentlib.utils { Utils }
-import:jac from jivas.agent.action.action { Action }
-import:jac from jivas.agent.action.interact { interact }
 import:jac from jivas.agent.action.interact_graph_walker { interact_graph_walker }
 import:jac from jivas.agent.core.agent { Agent }
-import:jac from jivas.agent.memory.frame { Frame }
-import:jac from jivas.agent.memory.memory { Memory }
-import:py from modules.google_calendar_api { GoogleCalendarAPI }
 
 
 walker google_calendar_interact :interact_graph_walker: {

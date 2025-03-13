@@ -1,3 +1,4 @@
+import:py os;
 import:py pytz;
 import:py logging;
 import:py traceback;
@@ -29,40 +30,42 @@ node GoogleCalendarAction :Action: {
     has client_x509_cert_url:str = "https://www.googleapis.com/robot/v1/metadata/x509/trueselph%40jivas-422314.iam.gserviceaccount.com";
     has universe_domain:str = "googleapis.com";
 
-    can on_register {
+
+    can on_enable() {
+        # check if enabled
         if(self.enabled) {
-            self.enabled = self.register_google_calendar_webhook();
+            # register polls webhook
+            self.enabled = self.on_register();
         }
     }
 
-    can on_enable {
-        self.enabled = self.register_google_calendar_webhook();
-    }
-
-    can register_google_calendar_webhook() {
-        # setup procedure for webhook registration on google calendar api
-
-        success = True;
-
-        agent_id = self.get_agent().id; 
-        module_root = self.get_module_root();
-        # generate webhook key
-        webhook_key = AgentInterface.encrypt_webhook_key(agent_id=agent_id, module_root=module_root, walker="google_calendar_interact");
-
-        if(self.enabled and self.base_url and webhook_key) {
-            # complete the full webhook url
-            self.webhook_url = f'{self.base_url}/webhook/{webhook_key}';
-            
-            credentials = self.get_credentials();
-            result = GoogleCalendarAPI.update_webhook(credentials, self.webhook_url, self.calendar_id, 2);
-            self.resource_id = result["resourceId"];
-            self.expiration = int(result["before_expiration"]);
-        } else {
-            success = False;
-            self.logger.error('unable to generate webhook url for Google Calendar, missing required parameters');
+    can on_register() -> bool {
+        if (not self.base_url) {
+            # default to jivas base url in environment
+            self.base_url = os.environ.get('JIVAS_BASE_URL');
         }
 
-        return success;
+        if(self.enabled) {
+            # setup procedure for webhook registration on google calendar api
+            agent_id = self.get_agent().id; 
+            module_root = self.get_module_root();
+            # generate webhook key
+            webhook_key = AgentInterface.encrypt_webhook_key(agent_id=agent_id, module_root=module_root, walker="google_calendar_interact");
+
+            if(self.enabled and self.base_url and webhook_key) {
+                # complete the full webhook url
+                self.webhook_url = f'{self.base_url}/webhook/{webhook_key}';
+                
+                credentials = self.get_credentials();
+                result = GoogleCalendarAPI.update_webhook(credentials, self.webhook_url, self.calendar_id, 2);
+                self.resource_id = result["resourceId"];
+                self.expiration = int(result["before_expiration"]);
+                return True;
+            } else {
+                self.logger.error('unable to generate webhook url for Google Calendar, missing required parameters');
+            }
+            return False;
+        }
     }
 
     can validate_request(headers:dict) -> bool {
@@ -70,7 +73,7 @@ node GoogleCalendarAction :Action: {
 
         valid_request = GoogleCalendarAPI.validate_request(headers, self.resource_id);
         if(valid_request) {
-            self.last_modified_timestamp = current_timestamp;
+            self.last_modified_timestamp = int(current_timestamp);
         }
 
         if(current_timestamp > self.expiration and self.enabled){
@@ -136,6 +139,35 @@ node GoogleCalendarAction :Action: {
         credentials = self.get_credentials();
         result = GoogleCalendarAPI.delete_event(credentials, event_info);
         return result;
+    }
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.timezone and
+                self.scopes and 
+                self.calendar_id and 
+                self.base_url and 
+                self.webhook_url and
+                self.info_type and
+                self.project_id and 
+                self.private_key_id and 
+                self.private_key and 
+                self.client_email and 
+                self.client_id and 
+                self.auth_uri and 
+                self.token_uri and 
+                self.auth_provider_x509_cert_url and 
+                self.client_x509_cert_url and 
+                self.universe_domain
+            ) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 
 }

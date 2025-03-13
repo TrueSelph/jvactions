@@ -273,4 +273,58 @@ node NylasCalendarAction :Action: {
         formatted_new_time = new_time.strftime(date_format);
         return formatted_new_time;
     }
+
+        can healthcheck() -> bool {
+        try {
+            if (self.prompt and
+                self.model_name and
+                self.history_size and
+                self.max_statement_length > 0 and
+                self.model_action and
+                self.model_op and
+                self.model_max_tokens and
+                self.timezone and
+                self.top_n > 0
+            ) {
+                # Validate the 'open_hours' structure
+                if (type(self.open_hours) == list && len(self.open_hours) > 0) {
+                    # Required subkeys for each open_hours entry
+                    required_keys = ["days", "timezone", "start", "end"];
+
+                    for _entry in self.open_hours {
+                        # Check if each entry is a dictionary
+                        if (type(_entry) != dict) {
+                            return False;  # Entry is not a dictionary
+                        }
+                        
+                        # Ensure all required keys are present
+                        for key in required_keys {
+                            if (key not in _entry) {
+                                return False;  # Missing a required key
+                            }
+                        }
+
+                        # Validate 'days' is a list of integers
+                        if (type(_entry.days) != list) {
+                            return False; # Invalid 'days' format
+                        }
+
+                        # Validate 'timezone', 'start', 'end' are strings
+                        if (type(_entry.timezone) != str || type(_entry.start) != str || type(_entry.end) != str) {
+                            return False;  # Invalid type for 'timezone', 'start', or 'end'
+                        }
+                    }
+
+                    return True;  # All checks passed for open_hours
+                }
+
+                return False;  # open_hours is not a valid list
+            }
+
+            return False;  # One of the other conditions failed
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;  # Catch-all for unexpected errors
+        }
+    }
 }

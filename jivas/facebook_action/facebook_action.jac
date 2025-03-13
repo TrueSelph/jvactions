@@ -1,4 +1,5 @@
 import:py os;
+import:py traceback;
 import:py logging;
 import:py from logging { Logger }
 import:py from jvserve.lib.agent_interface { AgentInterface }
@@ -36,7 +37,21 @@ node FacebookAction :Action: {
     has webhook_verify_token:str = '123';
 
 
-    can on_register {
+    can on_enable() {
+        # check if enabled
+        if(self.enabled) {
+            # register polls webhook
+            self.enabled = self.on_register();
+        }
+    }
+
+
+
+    can on_register() -> bool {
+        if (not self.base_url) {
+            # default to jivas base url in environment
+            self.base_url = os.environ.get('JIVAS_BASE_URL');
+        }
 
         if(self.enabled) {
             # setup procedure for webhook registration on Facebook api
@@ -57,15 +72,16 @@ node FacebookAction :Action: {
                     api_url=self.api_url,
                     webhook=self.webhook_url,
                     verify_token=self.webhook_verify_token
-                );      
-
+                ); 
+                return True;
             } else {
                 self.logger.error('unable to generate webhook url for Facebook, missing required parameters');
             }
         } else {
             self.logger.warning('facebook action is disabled');
         }
-               
+
+        return False;  
     } 
 
 
@@ -264,5 +280,42 @@ node FacebookAction :Action: {
             "name": name,
             "url": url
         };
+    }
+
+    can healthcheck() -> bool {
+        try {
+            # Check if the types of attributes are as expected
+            if (
+                self.base_url and 
+                self.app_id and 
+                self.app_secret and 
+                self.pages and 
+                self.subscribed_fields and 
+                self.webhook_verify_token and 
+                self.chunk_length > 1000 and
+                self.webhook_url
+            ) {
+                
+                # Validate the 'pages' section
+                for page_name in self.pages {
+                    page_info = self.pages.get(page_name);
+                    if (type(page_info) != dict) {
+                        return False;  # Each page entry must be a dictionary
+                    }
+
+                    # Ensure each page has the required keys with appropriate types
+                    if (not page_info.get("page_id") or not page_info.get("page_access_token")) {
+                        return False;  # Missing required page details
+                    }
+                }
+                
+                return True;  # All checks passed
+            }
+            return False;  # One or more type checks failed
+
+        } except Exception as e{
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 }

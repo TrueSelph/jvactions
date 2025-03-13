@@ -101,4 +101,19 @@ node ConfirmBookingAction :InteractAction: {
         visitor.set_next_action("PersonaInteractAction");
         return visitor.export();
     }
+
+
+    can healthcheck() -> bool {
+        try {
+            if (self.appointment_booked_prompt and self.nylas_action) {
+                return True;
+            }
+
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
+
 }

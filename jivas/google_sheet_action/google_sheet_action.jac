@@ -170,6 +170,31 @@ node GoogleSheetAction :Action: {
     }
 
 
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.key_or_url and 
+                self.worksheet_title and 
+                self.info_type and
+                self.project_id and 
+                self.private_key_id and 
+                self.private_key and 
+                self.client_email and 
+                self.client_id and 
+                self.auth_uri and 
+                self.token_uri and 
+                self.auth_provider_x509_cert_url and 
+                self.client_x509_cert_url and 
+                self.universe_domain
+            ) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
 }
 
 

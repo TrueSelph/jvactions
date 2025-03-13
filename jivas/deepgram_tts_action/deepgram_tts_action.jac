@@ -54,4 +54,16 @@ node DeepgramTTSAction :TTSAction: {
         return self.get_audio_as(audio, as_base64, as_url);
     }
 
+    can healthcheck() -> bool {
+        try {
+            if(self.model and self.api_key){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
+
 }

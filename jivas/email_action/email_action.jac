@@ -76,7 +76,6 @@ node EmailAction :Action: {
     ];
     has max_emails:int = 1;
 
-    has model_name:str = "";
     has history_size:int = 3;
     has max_statement_length:int = 500;
     has model_action:str = "LangChainModelAction";
@@ -479,5 +478,58 @@ node EmailAction :Action: {
     can sanitize_message(message:str) {
         # return message.replace("**", "*").replace("<br/>", "\n").replace("<b>", "*").replace("</b>", "*");
         return message;
+    }
+
+    can healthcheck() -> bool {
+        try {
+            # Check for existence of necessary instance variables and if `channel` is "email"
+            if (
+                self.model_action and 
+                self.model_op and 
+                self.functions and 
+                self.actions and 
+                self.channel == "email" and
+                self.max_statement_length > 0
+            ) {
+                
+                # Check if `accounts` is a list and not empty
+                if (type(self.accounts) == list && len(self.accounts) > 0) {
+                    # Define required keys for each account dictionary
+                    required_keys = ["sender_session_id", "sender_email", "sender_password", "directives"];
+                    
+                    # Iterate over each account in the `accounts` list
+                    for account in self.accounts {
+                        # Ensure each account is a dictionary
+                        if (type(account) != dict) {
+                            return False;  # The account is not a dictionary
+                        }
+                        
+                        # Check each required key is present in the account
+                        for key in required_keys {
+                            if (!(key in account)) {
+                                return False;  # Missing required key
+                            }
+                        }
+                        
+                        # Ensure `directives` is a list of strings
+                        if (type(account.directives) != list || len(account.directives) == 0) {
+                            return False;
+                        }
+                        
+                        # Validate each directive is a non-empty string
+                        for directive in account.directives {
+                            if (type(directive) != str || len(directive) == 0) {
+                                return False;  # Directive is not a valid string
+                            }
+                        }
+                    }
+                    return True;  # All checks passed
+                }
+            }
+            return False;  # Preconditions not met or accounts schema invalid
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 }

@@ -27,17 +27,21 @@ node AgentUtilsAction :Action: {
     can import_memory(data:str, overwrite:bool) {
         # accepts a string-based representation 
         memory_data = {};
+        if isinstance(data, str) {
+            importing_error_message = "";
 
-        # Try to parse the content as JSON
-        try {
-            memory_data = json.loads(data);
-        } except json.JSONDecodeError {
-        }
+            # Try to parse the content as JSON
+            try {
+                memory_data = json.loads(data);
+            } except json.JSONDecodeError {}
 
-        # Try to parse the content as YAML
-        try {
-            memory_data = yaml.safe_load(data);
-        } except yaml.YAMLError {
+            # Try to parse the content as YAML
+            try {
+                memory_data = yaml.safe_load(data);
+            } except yaml.YAMLError {}
+            
+        }else{
+            memory_data = data;
         }
 
         return self.get_agent().get_memory().import_memory(memory_data, overwrite);

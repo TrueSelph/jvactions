@@ -156,4 +156,32 @@ node NylasConfirmationAction :InteractAction: {
         }
         return visitor.export();
     }
+
+
+    can healthcheck() -> bool {
+        try {
+            # Check core attributes that must exist and be correctly typed
+            if (
+                self.intent_prompt and
+                self.prompt and
+                self.model_name and
+                self.model_max_tokens > 0 and
+                self.max_statement_length > 0 and
+                self.nylas_model_action and
+                self.model_action and
+                self.model_op and
+                self.exceptions and
+                self.timezone and
+                self.intents
+            ) {
+                return True;  # All checks passed
+            }
+
+            return False;  # One of the type checks or presence checks failed
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
+
 }

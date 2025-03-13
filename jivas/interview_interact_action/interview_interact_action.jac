@@ -224,4 +224,54 @@ obj InterviewSession {
             'active': self.active
         };
     }
+
+    can healthcheck() -> bool {
+        try {
+            # Check for the presence of main directives
+            if (self.intro_directive &&
+                self.task_directive &&
+                self.outtro_directive &&
+                self.question_index
+            ) {
+                # Verify that question_index is a dictionary
+                if (type(self.question_index) == dict) {
+                    # Required sub_keys for each item in question_index
+                    required_sub_keys = ["question", "description", "type", "required"];
+
+                    # Iterate over each key in question_index
+                    for key in self.question_index {
+                        question_info = self.question_index[key];  # Get the associated value
+
+                        # Each question entry must be a dictionary
+                        if (type(question_info) != dict) {
+                            return False;  # Entry is not a dictionary
+                        }
+
+                        # Ensure all required sub_keys are present and valid
+                        for sub_key in required_sub_keys {
+                            if (sub_key not in question_info) {
+                                return False;  # Missing a required sub_key
+                            }
+                            if (sub_key == "question" || sub_key == "description" || sub_key == "type") {
+                                if (type(question_info[sub_key]) != str) {
+                                    return False;  # sub_key should be a string
+                                }
+                            }
+                            if (sub_key == "required") {
+                                if (type(question_info[sub_key]) != bool) {
+                                    return False;  # 'required' should be a boolean
+                                }
+                            }
+                        }
+                    }
+                    return True;  # All checks passed
+                }
+                return False;  # question_index is not a dictionary
+            }
+            return False;  # One of the main conditions failed
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
 }

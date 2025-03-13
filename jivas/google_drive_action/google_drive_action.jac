@@ -6,7 +6,6 @@ import:py from .modules.google_drive_api {GoogleDriveAPI}
 
 
 node GoogleDriveAction :Action: {
-    has name:str = "google_drive_action";
     has description:str = "Efficiently handles Google Drive API tasks and automation.";
     has scopes:list = ["https://www.googleapis.com/auth/drive.file"];
     has folder_id:str = "";
@@ -22,6 +21,8 @@ node GoogleDriveAction :Action: {
     has auth_provider_x509_cert_url:str = "https://www.googleapis.com/oauth2/v1/certs";
     has client_x509_cert_url:str = "https://www.googleapis.com/robot/v1/metadata/x509/trueselph%40jivas-422314.iam.gserviceaccount.com";
     has universe_domain:str = "googleapis.com";
+
+
 
 
     can get_credentials() -> dict {
@@ -103,6 +104,33 @@ node GoogleDriveAction :Action: {
         move = GoogleDriveAPI.move_to_trash(credentials, file_id);
         return move;
     }
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.scopes and 
+                self.folder_id and 
+                self.info_type and
+                self.project_id and 
+                self.private_key_id and 
+                self.private_key and 
+                self.client_email and 
+                self.client_id and 
+                self.auth_uri and 
+                self.token_uri and 
+                self.auth_provider_x509_cert_url and 
+                self.client_x509_cert_url and 
+                self.universe_domain
+            ) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
+
 
 }
 

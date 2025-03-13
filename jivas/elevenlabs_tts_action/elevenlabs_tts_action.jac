@@ -67,4 +67,16 @@ node ElevenlabsTTSAction :TTSAction: {
         return [];
     }
 
+    can healthcheck() -> bool {
+        try {
+            if(self.model and self.api_key and self.voice){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
+
 }

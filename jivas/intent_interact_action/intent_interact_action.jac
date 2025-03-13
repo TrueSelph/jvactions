@@ -1,8 +1,8 @@
 import:py json;
 import:py logging;
 import:py traceback;
-import:py from logging { Logger }
-import:py from jivas.agent.modules.agentlib.utils { Utils }
+import:py from logging {Logger}
+import:py from jivas.agent.modules.agentlib.utils {Utils}
 import:jac from jivas.agent.action.actions { Actions }
 import:jac from jivas.agent.action.interact_action { InteractAction }
 import:jac from jivas.agent.action.interact_graph_walker { interact_graph_walker }
@@ -40,6 +40,7 @@ HISTORY:
     has model_temperature:float = 0.2;
     has model_max_tokens:int = 2048;
     has exceptions:list = ['FunctionInteractAction']; # list of actions which are included in intent, regardless
+
 
     can touch(visitor: interact_graph_walker) -> bool {
         # authorize the interact to run
@@ -115,6 +116,27 @@ HISTORY:
         }
 
         return anchor_index;
+    }
+
+    can healthcheck() -> bool {
+        try {
+            if(
+               self.prompt and 
+               self.history_size >= 0 and 
+               self.model_action and 
+               self.model_name and 
+               self.model_temperature and 
+               self.model_max_tokens > 0 and
+               self.exceptions and 
+               self.max_statement_length > 0
+            ) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 
 }

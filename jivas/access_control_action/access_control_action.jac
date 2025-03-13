@@ -1,3 +1,4 @@
+import:py traceback;
 import:jac from jivas.agent.action.action { Action }
 
 node AccessControlAction :Action: {
@@ -117,6 +118,54 @@ node AccessControlAction :Action: {
         } else {
             return True;
         }           
+    }
+
+
+    can healthcheck() -> bool {
+        try {
+            # Check if 'permissions' is a dict and has at least one key
+            if (type(self.permissions) == dict && len(self.permissions.keys()) > 0) {
+                # Define allowed and required keys
+                allowed_channels = ["default", "whatsapp", "facebook"];
+                required_channels = ["deny", "allow"];
+                
+                # Iterate over each channel in the 'permissions'
+                for channel in self.permissions.keys() {
+                    if (channel in allowed_channels) {
+                        if ("any" in self.permissions[channel]) {
+                            # Iterate over each access type in the channel permissions
+                            for access in self.permissions[channel] {
+                                # Get the resource value for this access
+                                resource_value = self.permissions[channel][access];
+                                
+                                if (type(resource_value) == dict) {
+                                    # Check each required access exists
+                                    for required_channel in required_channels {
+                                        if (required_channel not in resource_value) {
+                                            return False;  # Missing required access
+                                        }
+                                    }
+                                }
+                                else {
+                                    return False;  # Resource value is not a dict
+                                }
+                            }
+                        }
+                        else {
+                            return False;  # 'any' key missing in channel
+                        }
+                    }
+                    else {
+                        return False;  # Channel not in allowed_channels
+                    }
+                }
+                return True;  # All checks passed
+            }
+            return False;  # 'permissions' is not a dict or is empty
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 
 }

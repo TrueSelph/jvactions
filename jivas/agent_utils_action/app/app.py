@@ -1,16 +1,173 @@
-import uuid
+import zipfile
 import streamlit as st
 import yaml
 import json
 from io import BytesIO
-from jvcli.client.lib.utils import call_action_walker_exec, call_import_agent
+from jvcli.client.lib.utils import call_action_walker_exec, call_import_agent, jac_yaml_dumper
 from jvcli.client.lib.widgets import app_header, app_update_action
 from streamlit_router import StreamlitRouter
+
 
 def render(router: StreamlitRouter, agent_id: str, action_id: str, info:dict):
     # Add application header controls
     (model_key, module_root) = app_header(agent_id, action_id, info)
+
     
+    
+    with st.expander('Export daf', False):
+
+        knode_embeddings = st.checkbox("Knode Embeddings", value=False, key=f"{model_key}_exporting_daf_knode_embeddings")
+        knode_id = st.checkbox("Knode ID", value=False, key=f"{model_key}_exporting_daf_knode_id")
+        export_json = st.checkbox("Json", value=True, key=f"{model_key}_exporting_daf_json")
+
+        if st.button('Export', key=f"{model_key}_btn_exporting_daf"):
+
+            params = {
+                'knode_embeddings':knode_embeddings,
+                'export_json':export_json,
+                'knode_id':knode_id
+            }
+
+            if result := call_action_walker_exec(agent_id, module_root, 'export_agent_utils', params):
+
+                if export_json:
+                    # Convert each section to JSON
+                    descriptor_json = json.dumps(result['descriptor'], indent=2)
+                    memory_json = json.dumps(result['memory'], indent=2)
+                    knowledge_json = json.dumps(result['knowledge'], indent=2)
+                    info_json = json.dumps(result['info'], indent=2)
+
+                    # Create a BytesIO stream for each file
+                    descriptor_file = BytesIO(descriptor_json.encode('utf-8'))
+                    memory_file = BytesIO(memory_json.encode('utf-8'))
+                    knowledge_file = BytesIO(knowledge_json.encode('utf-8'))
+                    info_file = BytesIO(info_json.encode('utf-8'))
+
+                    # Zip the files
+                    zip_buffer = BytesIO()
+                    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+                        zip_file.writestr("descriptor.json", descriptor_file.getvalue())
+                        zip_file.writestr("memory.json", memory_file.getvalue())
+                        zip_file.writestr("knowledge.json", knowledge_file.getvalue())
+                        zip_file.writestr("info.json", info_file.getvalue())
+
+                    # Make the ZIP file downloadable
+                    namespace = result['info']['package']['name']
+                    namespace = namespace.replace("/", "_")
+                    namespace = namespace.replace("-", "_")
+                    namespace = namespace.replace(" ", "_")
+
+                    st.download_button(
+                        label="Download ZIP",
+                        data=zip_buffer.getvalue(),
+                        file_name=f"{namespace}_daf.zip",
+                        mime="application/zip",
+                    )
+
+                else:
+                    if isinstance(result, str):
+                        result = yaml.safe_load(result)
+
+                    # Convert each section to YAML
+                    descriptor_yaml = jac_yaml_dumper(result['descriptor'], sort_keys=False)
+                    memory_yaml = jac_yaml_dumper(data=result['memory'], sort_keys=False)
+                    knowledge_yaml = jac_yaml_dumper(data=result['knowledge'], sort_keys=False)
+                    info_yaml = jac_yaml_dumper(data=result['info'], sort_keys=False)
+
+                    # Create a BytesIO stream for each file
+                    descriptor_file = BytesIO(descriptor_yaml.encode('utf-8'))
+                    memory_file = BytesIO(memory_yaml.encode('utf-8'))
+                    knowledge_file = BytesIO(knowledge_yaml.encode('utf-8'))
+                    info_file = BytesIO(info_yaml.encode('utf-8'))
+
+                    # Zip the files
+                    zip_buffer = BytesIO()
+                    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+                        zip_file.writestr("descriptor.yaml", descriptor_file.getvalue())
+                        zip_file.writestr("memory.yaml", memory_file.getvalue())
+                        zip_file.writestr("knowledge.yaml", knowledge_file.getvalue())
+                        zip_file.writestr("info.yaml", info_file.getvalue())
+
+                    # Ensure the stream position is at the start
+                    zip_buffer.seek(0)
+
+                    # Make the ZIP file downloadable
+                    namespace = result['info']['package']['name']
+                    namespace = namespace.replace("/", "_")
+                    namespace = namespace.replace("-", "_")
+                    namespace = namespace.replace(" ", "_")
+
+                    st.download_button(
+                        label="Download ZIP",
+                        data=zip_buffer.getvalue(),
+                        file_name=f"{namespace}_daf.zip",
+                        mime="application/zip",
+                    )
+            else:
+                st.error("Unable to export agent")
+                
+    
+    with st.expander('Import daf', False):
+        # Initialize lists to store classified data
+        descriptors = {}
+        knowledge = []
+        memory = []
+        knode_embeddings = False
+
+        uploaded_files = st.file_uploader(
+            "Upload a file or multiple files", type=["json", "yaml", "yml"], accept_multiple_files=True
+        )
+
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                try:
+                    # Determine the file type
+                    if uploaded_file.type == "application/json":
+                        data = json.load(uploaded_file)
+                    elif uploaded_file.type in ["text/yaml", "application/x-yaml"]:
+                        # Handle YAML files
+                        data = yaml.safe_load(uploaded_file)
+                    else:
+                        st.error("Unsupported file type or error processing the file!")
+                        continue
+                    
+                    # Classify the loaded data
+                    classification = classify_data(data)
+                    if classification == "descriptor":
+                        descriptors = data
+                        # st.success(f"Loaded {uploaded_file.name} as a descriptor")
+                    elif classification == "knowledge":
+                        knowledge = data
+                        # st.success(f"Loaded {uploaded_file.name} as knowledge")
+                    elif classification == "memory":
+                        memory = data
+                        # st.success(f"Loaded {uploaded_file.name} as memory")
+                    else:
+                        st.warning(f"{uploaded_file.name} didn't match any known schema.")
+
+                except Exception as e:
+                    st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+
+
+            if knowledge:
+                knode_embeddings = st.checkbox("Knode Embeddings", value=False, key=f"{model_key}_importing_daf_knode_embeddings")
+            
+            if st.button('Import', key=f"{model_key}_btn_importing_daf"):
+                    
+                params = {
+                    "knode_embeddings": knode_embeddings,
+                    "daf_descriptor": descriptors,
+                    "daf_knowledge": knowledge,
+                    "daf_memory": memory
+                }
+
+                if result := call_action_walker_exec(agent_id, module_root, 'import_agent_utils', params):
+                    st.success("Daf imported successfully")
+                else:
+                    st.error("Failed to import daf.")
+
+
+
     with st.expander('Logging', False):
         
         _logging = call_action_walker_exec(agent_id, module_root, 'get_logging')    
@@ -190,3 +347,17 @@ def render(router: StreamlitRouter, agent_id: str, action_id: str, info:dict):
 
     # Add update button to apply changes
     app_update_action(agent_id, action_id)
+
+
+def classify_data(data):
+    if isinstance(data, dict):
+        if "actions" in data and "name" in data:
+            return "descriptor"
+    elif isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict):
+                if "metadata" in item and "text" in item:
+                    return "knowledge"
+                elif "frame" in item:
+                    return "memory"
+    return "unknown"

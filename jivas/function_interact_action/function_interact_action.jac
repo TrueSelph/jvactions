@@ -27,6 +27,7 @@ node FunctionInteractAction :InteractAction: {
     has model_max_tokens:int = 2048;
     has exceptions:list = [];
 
+
     can touch(visitor: interact_graph_walker) -> bool {
         # authorize the interact to run
 
@@ -183,5 +184,16 @@ node FunctionInteractAction :InteractAction: {
         return None;
     }
 
+    can healthcheck() -> bool {
+        try {
+            if(self.model_action and self.model_name){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
 
 }

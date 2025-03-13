@@ -4,8 +4,7 @@ import:py from logging { Logger }
 import:py from langchain_core.prompts { ChatPromptTemplate }
 import:py from langchain_openai { ChatOpenAI, AzureChatOpenAI }
 import:py from langchain_community.callbacks { get_openai_callback }
-import:jac from jivas.agent.action.model_action { ModelAction }
-
+import:jac from jivas.agent.action.model_action { ModelAction, ModelActionResult }
 
 node LangChainModelAction :ModelAction: {
     # JIVAS action wrapper around LangChain library for abstracted LLM interfacing
@@ -22,6 +21,7 @@ node LangChainModelAction :ModelAction: {
     has model_temperature:float = 0.7;
     has model_max_tokens:int = 2048;
 
+
     can invoke(
         prompt_messages:list, 
         prompt_variables:dict, 
@@ -36,10 +36,9 @@ node LangChainModelAction :ModelAction: {
 
         op = kwargs.get('op', "chatopenai");
         functions = kwargs.get('functions', []);
-        temperature = kwargs.get('temperature', self.model_temperature);
+        temperature = kwargs.get('model_temperature', self.model_temperature);
         model_name = kwargs.get('model_name', self.model_name);
-        max_tokens = kwargs.get('max_tokens', self.model_max_tokens);
-        count_tokens = kwargs.get('count_tokens', False);
+        max_tokens = kwargs.get('model_max_tokens', self.model_max_tokens);
 
         if op == 'chatopenai' {
             llm = ChatOpenAI(
@@ -64,18 +63,27 @@ node LangChainModelAction :ModelAction: {
             try {
                 
                 messages = template.format_messages(**prompt_variables);
-                
+                                
                 if(functions) {
                     llm = llm.bind_tools(functions);
                 } 
 
                 with get_openai_callback() as cb {
+
                     if(message:=llm.invoke(messages)) {
-                        if (count_tokens == True) {
-                            return {'result': message.tool_calls if functions else message.content, 'tokens': cb.total_tokens};
-                        }
-                        return {'result': message.tool_calls if functions else message.content};
-                    }   
+               
+                        return ModelActionResult(
+                            prompt = messages,
+                            functions = functions,
+                            tokens = cb.total_tokens,
+                            result = message.tool_calls if functions else message.content,
+                            temperature = temperature,
+                            model_name = model_name,
+                            max_tokens = max_tokens
+                        );
+                        
+                    }
+
                 }
                     
             } except Exception as e {
@@ -84,6 +92,22 @@ node LangChainModelAction :ModelAction: {
         }
  
         return None;
+    }
+
+    can healthcheck() -> bool {
+        try {
+            if(
+               self.api_key and 
+               self.model_name and 
+               self.model_max_tokens > 0
+            ) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 
 }

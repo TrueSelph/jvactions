@@ -1,3 +1,4 @@
+import:py traceback;
 import:jac from jivas.agent.action.interact_action { InteractAction }
 
 
@@ -14,5 +15,17 @@ node IntroInteractAction :InteractAction: {
         # add directive to issue introductory response
         visitor.interaction_node.add_directive(directive=self.prompt);
         return visitor.export();
+    }
+
+    can healthcheck() -> bool {
+        try {
+            if(self.prompt) {
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 }

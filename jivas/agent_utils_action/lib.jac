@@ -7,3 +7,5 @@ include:jac export_memory;
 include:jac memory_healthcheck;
 include:jac get_logging;
 include:jac set_logging;
+include:jac export_agent_utils;
+include:jac import_agent_utils;

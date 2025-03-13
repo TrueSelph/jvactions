@@ -1,3 +1,5 @@
+import:py os;
+import:py traceback;
 import:py logging;
 import:py from logging { Logger }
 import:py from jvserve.lib.agent_interface { AgentInterface }
@@ -29,13 +31,22 @@ node UltramsgAction :Action: {
 
 
     can on_register {
+        if (not self.base_url) {
+            # default to jivas base url in environment
+            self.base_url = os.environ.get('JIVAS_BASE_URL');
+        }
+
         if(self.enabled) {
             self.enabled = self.register_ultramsg_webhook();
         }
     }
 
-    can on_enable {
-        self.enabled = self.register_ultramsg_webhook();
+    can on_enable() {
+        # check if enabled
+        if(self.enabled) {
+            # register polls webhook
+            self.enabled = self.register_ultramsg_webhook();
+        }
     }
 
     can register_ultramsg_webhook() {
@@ -153,6 +164,27 @@ node UltramsgAction :Action: {
             }
         }
         
+    }
+
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.base_url and 
+                self.api_key and 
+                self.api_url and
+                self.instance_id and
+                self.phone_number and 
+                self.webhook_url and 
+                self.chunk_length > 1000
+            ){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 
 }

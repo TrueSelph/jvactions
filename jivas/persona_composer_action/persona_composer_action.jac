@@ -179,6 +179,31 @@ node PersonaComposerAction :Action: {
 
         return False;
     }
+
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.identity_attrs and
+                self.mbti_attrs and
+                self.disc_attrs and
+                self.prompt_template and
+                self.compose_prompt and
+                self.update_prompt and
+                self.biodata and 
+                self.metric and
+                self.model_action and
+                self.model_op and
+                self.model_max_tokens > 0
+            ){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
 }
 
 

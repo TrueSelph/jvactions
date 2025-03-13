@@ -154,4 +154,25 @@ node PersonaInteractAction :InteractAction: {
             visitor.interaction_node.add_directive(directive=self.channel_format_directive[channel]);
         }
     }
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.timezone and
+                self.max_statement_length > 0 and
+                self.model_action and
+                self.model_name and
+                self.model_max_tokens > 0 and
+                self.prompt and
+                self.user_model_directive and 
+                self.channel_format_directive
+            ){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
+    }
 }

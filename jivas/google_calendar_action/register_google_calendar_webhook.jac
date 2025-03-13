@@ -31,7 +31,7 @@ walker register_google_calendar_webhook :interact_graph_walker: {
     }
 
     can on_action with Action entry {
-        self.response = here.register_google_calendar_webhook();
+        self.response = here.on_register();
     }
 
 }
