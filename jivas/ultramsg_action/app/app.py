@@ -1,9 +1,8 @@
 """This module renders the main app UI for the Ultramsg action."""
 
+import streamlit as st
 from jvcli.client.lib.utils import call_action_walker_exec
 from jvcli.client.lib.widgets import app_controls, app_header, app_update_action
-
-import streamlit as st
 
 
 def render(agent_id: str, action_id: str, info: dict) -> None:

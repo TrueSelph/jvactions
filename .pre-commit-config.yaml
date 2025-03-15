@@ -1,25 +1,24 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v5.0.0
     hooks:
       - id: check-yaml
         args: [--allow-multiple-documents]
       - id: check-json
       - id: trailing-whitespace
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 25.1.0
     hooks:
       - id: black
         exclude: "venv,__jac_gen__"
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.1.2
     hooks:
       - id: flake8
         args: ["--config=.flake8"]
         additional_dependencies:
           [
             pep8-naming,
-            flake8_import_order,
             flake8_docstrings,
             flake8_comprehensions,
             flake8_bugbear,
@@ -28,7 +27,7 @@ repos:
           ]
         exclude: "^(__jac_gen__|venv)/"
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.1
+    rev: v1.15.0
     hooks:
       - id: mypy
         exclude: "venv|__jac_gen__"
@@ -47,3 +46,12 @@ repos:
         args: ['scan', '.']
         files: \.(jac|txt|yaml|json)$
         exclude: "venv|__jac_gen__|.mypy_cache|.jac_mypy_cache"
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+        language: python
+        files: \.py$
+        exclude: 'venv|__jac_gen__'
+        args: ["--profile", "black"]
