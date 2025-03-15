@@ -3,8 +3,8 @@
 import uuid
 
 import streamlit as st
-from jvclient.client.lib.utils import call_action_walker_exec, decode_base64_image
-from jvclient.client.lib.widgets import app_header, app_update_action
+from jvcli.client.lib.utils import call_action_walker_exec, decode_base64_image
+from jvcli.client.lib.widgets import app_header, app_update_action
 from streamlit_router import StreamlitRouter
 
 
