@@ -5,10 +5,8 @@ from jvcli.client.lib.widgets import app_controls, app_header, app_update_action
 
 import streamlit as st
 
-from streamlit_router import StreamlitRouter
 
-
-def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -> None:
+def render(agent_id: str, action_id: str, info: dict) -> None:
     """
     Render the main app UI for the Ultramsg action.
 
@@ -37,7 +35,7 @@ def render(router: StreamlitRouter, agent_id: str, action_id: str, info: dict) -
             result = call_action_walker_exec(
                 agent_id, module_root, "register_ultramsg_webhook", {}
             )
-            print(result)
+
             if result:
                 st.success("Webhook registered successfully!")
             else:
