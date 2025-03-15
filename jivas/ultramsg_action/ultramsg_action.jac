@@ -1,12 +1,12 @@
+import:py os;
+import:py traceback;
 import:py logging;
 import:py from logging { Logger }
-import:py from jvserve.lib.agent_interface { AgentInterface }
-import:py from agent.modules.agentlib.utils { Utils }
-import:jac from agent.action.action { Action }
-import:jac from agent.memory.frame { Frame }
-import:jac from agent.memory.memory { Memory }
-import:jac from agent.memory.interaction_response { MessageType }
 import:py from .modules.ultramsg_api { UltramsgAPI }
+import:py from jivas.agent.modules.agentlib.utils { Utils }
+import:py from jvserve.lib.agent_interface { AgentInterface }
+import:jac from jivas.agent.action.action { Action }
+import:jac from jivas.agent.memory.interaction_response { MessageType }
 
 node UltramsgAction :Action: {
     # houses configurations per agent for whatsapp api communications provided by ultramsg api
@@ -22,20 +22,29 @@ node UltramsgAction :Action: {
     has phone_number:str = ""; # the whatsapp phone number
     has webhook_url:str = "";
     has webhook_properties:dict = {"send_delay": 3, "webhook_message_received": "True", "webhook_message_create": "False", "webhook_message_ack": "True", "webhook_message_download_media": "True"};
-    has chunk_length:int = 1024;
+    has chunk_length:int = 3500;
     # when set, the wa push name value is used as the user name
     has use_pushname:bool = True;
     has ignore_newsletters:bool = True;
 
 
     can on_register {
+        if (not self.base_url) {
+            # default to jivas base url in environment
+            self.base_url = os.environ.get('JIVAS_BASE_URL');
+        }
+
         if(self.enabled) {
             self.enabled = self.register_ultramsg_webhook();
         }
     }
 
-    can on_enable {
-        self.enabled = self.register_ultramsg_webhook();
+    can on_enable() {
+        # check if enabled
+        if(self.enabled) {
+            # register polls webhook
+            self.enabled = self.register_ultramsg_webhook();
+        }
     }
 
     can register_ultramsg_webhook() {
@@ -143,15 +152,37 @@ node UltramsgAction :Action: {
                 # get all frames then proceed to broadcast
                 for frame_node in frames {
                     if(frame_node.session_id not in ignore_list) {
-                        interaction_node = frame_node.get_interactions()[0];
-                        if(interaction_node.channel in ['whatsapp']) {
-                            self.send_message(session_id = frame_node.session_id, message=message);
+                        if(interaction_node := frame_node.get_last_interaction()) {
+                            if interaction_node.channel in ['whatsapp'] {
+                                self.send_message(session_id = frame_node.session_id, message=message);
+                            }
                         }
                     }
                 }
             }
         }
 
+    }
+
+
+    can healthcheck() -> bool {
+        try {
+            if(
+                self.base_url and
+                self.api_key and
+                self.api_url and
+                self.instance_id and
+                self.phone_number and
+                self.webhook_url and
+                self.chunk_length > 1000
+            ){
+                return True;
+            }
+            return False;
+        } except Exception as e {
+            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
+            return False;
+        }
     }
 
 }

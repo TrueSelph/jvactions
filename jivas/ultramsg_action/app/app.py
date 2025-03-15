@@ -1,7 +1,7 @@
 """This module renders the main app UI for the Ultramsg action."""
 
-from jvclient.client.lib.utils import call_action_walker_exec
-from jvclient.client.lib.widgets import app_controls, app_header, app_update_action
+from jvcli.client.lib.utils import call_action_walker_exec
+from jvcli.client.lib.widgets import app_controls, app_header, app_update_action
 
 import streamlit as st
 

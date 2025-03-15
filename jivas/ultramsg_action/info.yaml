@@ -12,5 +12,3 @@ package:
     singleton: true
   dependencies:
     jivas: ^2.0.0
-
-
